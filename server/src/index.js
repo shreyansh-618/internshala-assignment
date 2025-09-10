@@ -25,12 +25,18 @@ app.use("*", prettyJSON());
 app.use(
   "*",
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://127.0.0.1:3000",
-      "https://internshala-assignment-r2lh.vercel.app",
-    ],
+    origin: (origin) => {
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://internshala-assignment-r2lh.vercel.app",
+      ];
 
+      // Allow all Vercel preview deployments
+      const isVercelPreview = origin && origin.includes("vercel.app");
+
+      return allowedOrigins.includes(origin) || isVercelPreview;
+    },
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
