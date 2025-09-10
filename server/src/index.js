@@ -1,24 +1,20 @@
+import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import dotenv from "dotenv";
-import { createServer } from "http";
 
-// Import routes
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.js";
 import cartRoutes from "./routes/cart.js";
 import healthRoutes from "./routes/health.js";
 
-// Import database connection
 import { connectDB } from "./config/database.js";
-
-// Import middleware
 import { globalErrorHandler } from "./middleware/errorHandler.js";
 import { rateLimiter } from "./middleware/rateLimiter.js";
 
-// Load environment variables
+// Load env
 dotenv.config();
 
 const app = new Hono();
@@ -30,9 +26,9 @@ app.use(
   "*",
   cors({
     origin: [
-      "http://localhost:3000", // local dev
+      "http://localhost:3000",
       "http://127.0.0.1:3000",
-      "https://internshala-assignment-dun.vercel.app/", // deployed frontend
+      process.env.FRONTEND_URL,
     ],
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -40,12 +36,11 @@ app.use(
   })
 );
 
-// Rate limiting
 app.use("*", rateLimiter({ windowMs: 15 * 60 * 1000, max: 100 }));
 
-// Health check route
-app.get("/", (c) => {
-  return c.json({
+// Routes
+app.get("/", (c) =>
+  c.json({
     message: "Intern API is running!",
     version: "1.0.0",
     timestamp: new Date().toISOString(),
@@ -55,18 +50,16 @@ app.get("/", (c) => {
       products: "/api/products",
       cart: "/api/cart",
     },
-  });
-});
+  })
+);
 
-// API Routes
 app.route("/health", healthRoutes);
 app.route("/api/auth", authRoutes);
 app.route("/api/products", productRoutes);
 app.route("/api/cart", cartRoutes);
 
-// 404 handler
-app.notFound((c) => {
-  return c.json(
+app.notFound((c) =>
+  c.json(
     {
       success: false,
       message: "Route not found",
@@ -74,23 +67,24 @@ app.notFound((c) => {
       timestamp: new Date().toISOString(),
     },
     404
-  );
-});
+  )
+);
 
-// Global error handler
 app.onError(globalErrorHandler);
 
-// Bootstrapping server
 const port = process.env.PORT || 8000;
 
+// ✅ Start server with hono adapter
 connectDB()
   .then(() => {
     console.log("✅ Connected to MongoDB Atlas");
 
-    // 👇 Start listening
-    createServer(app.fetch).listen(port, () => {
-      console.log(`🚀 Server running on http://localhost:${port}`);
+    serve({
+      fetch: app.fetch,
+      port,
     });
+
+    console.log(`🚀 Server running on http://localhost:${port}`);
   })
   .catch((error) => {
     console.error("❌ Failed to connect to MongoDB:", error);
