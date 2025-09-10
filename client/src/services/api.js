@@ -51,14 +51,14 @@ class ApiService {
 
   // ---------------- AUTH METHODS ----------------
   async register(userData) {
-    return this.request("/auth/register", {
+    return this.request("/api/auth/register", {
       method: "POST",
       body: JSON.stringify(userData),
     });
   }
 
   async login(credentials) {
-    const response = await this.request("/auth/login", {
+    const response = await this.request("/api/auth/login", {
       method: "POST",
       body: JSON.stringify(credentials),
     });
@@ -81,11 +81,11 @@ class ApiService {
   }
 
   async getProfile() {
-    return this.request("/auth/profile");
+    return this.request("/api/auth/profile");
   }
 
   async verifyToken() {
-    return this.request("/auth/verify");
+    return this.request("/api/auth/verify");
   }
 
   // ---------------- PRODUCT METHODS ----------------
@@ -103,46 +103,46 @@ class ApiService {
     });
 
     const queryString = queryParams.toString();
-    const endpoint = `/products${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `/api/products${queryString ? `?${queryString}` : ""}`;
 
     return this.request(endpoint);
   }
 
   async getProduct(id) {
-    return this.request(`/products/${id}`);
+    return this.request(`/api/products/${id}`);
   }
 
   async getCategories() {
-    return this.request("/products/categories/list");
+    return this.request("/api/products/categories/list");
   }
 
   // ---------------- CART METHODS ----------------
   async getCart() {
-    return this.request("/cart");
+    return this.request("/api/cart");
   }
 
   async addToCart(productId, quantity = 1) {
-    return this.request("/cart/add", {
+    return this.request("/api/cart/add", {
       method: "POST",
       body: JSON.stringify({ productId, quantity }),
     });
   }
 
   async updateCartItem(cartItemId, quantity) {
-    return this.request(`/cart/${cartItemId}`, {
+    return this.request(`/api/cart/${cartItemId}`, {
       method: "PUT",
       body: JSON.stringify({ quantity }),
     });
   }
 
   async removeFromCart(cartItemId) {
-    return this.request(`/cart/${cartItemId}`, {
+    return this.request(`/api/cart/${cartItemId}`, {
       method: "DELETE",
     });
   }
 
   async clearCart() {
-    return this.request("/cart", {
+    return this.request("/api/cart", {
       method: "DELETE",
     });
   }
