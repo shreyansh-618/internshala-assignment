@@ -32,10 +32,22 @@ app.use(
         "https://internshala-assignment-r2lh.vercel.app",
       ];
 
-      // Allow all Vercel preview deployments
-      const isVercelPreview = origin && origin.includes("vercel.app");
+      // Check if origin is in allowed list
+      if (allowedOrigins.includes(origin)) {
+        return origin;
+      }
 
-      return allowedOrigins.includes(origin) || isVercelPreview;
+      // Allow all Vercel preview deployments
+      if (origin && origin.includes("vercel.app")) {
+        return origin;
+      }
+
+      // Allow requests with no origin (like Postman, same-origin)
+      if (!origin) {
+        return true;
+      }
+
+      return false;
     },
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
