@@ -21,6 +21,9 @@ export const connectDB = async () => {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
+      ssl: true, // force TLS/SSL
+      tls: true, // newer option
+      retryWrites: true, // recommended by Atlas
     });
 
     await client.connect();
@@ -28,6 +31,7 @@ export const connectDB = async () => {
 
     // Test the connection
     await db.admin().ping();
+    console.log("MongoDB connected successfully");
 
     return db;
   } catch (error) {
