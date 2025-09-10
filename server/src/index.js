@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import dotenv from "dotenv";
+import { createServer } from "http";
 
 // Import routes
 import authRoutes from "./routes/auth.js";
@@ -31,7 +32,7 @@ app.use(
     origin: [
       "http://localhost:3000", // local dev
       "http://127.0.0.1:3000",
-      process.env.FRONTEND_URL, // your deployed frontend
+      "https://internshala-assignment-dun.vercel.app/", // deployed frontend
     ],
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -79,15 +80,21 @@ app.notFound((c) => {
 // Global error handler
 app.onError(globalErrorHandler);
 
-// Connect to database
+// Bootstrapping server
+const port = process.env.PORT || 8000;
+
 connectDB()
   .then(() => {
     console.log("✅ Connected to MongoDB Atlas");
+
+    // 👇 Start listening
+    createServer(app.fetch).listen(port, () => {
+      console.log(`🚀 Server running on http://localhost:${port}`);
+    });
   })
   .catch((error) => {
     console.error("❌ Failed to connect to MongoDB:", error);
     process.exit(1);
   });
 
-// 🚀 Export for serverless (Render, Vercel, etc.)
 export default app;
