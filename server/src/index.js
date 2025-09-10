@@ -1,4 +1,3 @@
-import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -29,7 +28,11 @@ app.use("*", prettyJSON());
 app.use(
   "*",
   cors({
-    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    origin: [
+      "http://localhost:3000", // local dev
+      "http://127.0.0.1:3000",
+      process.env.FRONTEND_URL, // your deployed frontend
+    ],
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
@@ -42,7 +45,7 @@ app.use("*", rateLimiter({ windowMs: 15 * 60 * 1000, max: 100 }));
 // Health check route
 app.get("/", (c) => {
   return c.json({
-    message: "ShopEasy API is running!",
+    message: "Intern API is running!",
     version: "1.0.0",
     timestamp: new Date().toISOString(),
     endpoints: {
@@ -76,23 +79,15 @@ app.notFound((c) => {
 // Global error handler
 app.onError(globalErrorHandler);
 
-const port = process.env.PORT || 8000;
-
-// Connect to database and start server
+// Connect to database
 connectDB()
   .then(() => {
-    console.log("Connected to MongoDB Atlas");
-
-    serve({
-      fetch: app.fetch,
-      port: port,
-    });
-
-    console.log(`intern API Server running on http://localhost:${port}`);
-    console.log(`Health checks available at http://localhost:${port}/health`);
-    console.log(`API documentation: http://localhost:${port}`);
+    console.log("✅ Connected to MongoDB Atlas");
   })
   .catch((error) => {
     console.error("❌ Failed to connect to MongoDB:", error);
     process.exit(1);
   });
+
+// 🚀 Export for serverless (Render, Vercel, etc.)
+export default app;
