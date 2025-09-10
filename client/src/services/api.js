@@ -14,7 +14,7 @@ class ApiService {
     return {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
-      // 👉 If your backend expects "x-auth-token", replace line above with:
+      // If your backend expects "x-auth-token", replace line above with:
       // ...(token && { "x-auth-token": token }),
     };
   }
