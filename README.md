@@ -1,5 +1,3 @@
-# ShopEasy Backend API
-
 A modern e-commerce backend built with Hono framework and MongoDB Atlas.
 
 ## Features
